@@ -62,8 +62,11 @@ class GameClient {
 
     handleRoomCreated(roomId) {
         this.currentRoom = roomId;
-        this.updateStatus(`Code de la salle: ${roomId}`);
         this.showGameBoard();
+        const roomInfo = document.getElementById('roomInfo');
+        if (roomInfo) {
+            roomInfo.textContent = `Code de la salle: ${roomId}`;
+        }
     }
 
     handleGameStart(gameState) {
@@ -149,16 +152,12 @@ class GameClient {
 
     updateStatus(message, isWinner = false) {
         const status = document.getElementById('status');
-        status.textContent = message;
-        status.className = isWinner ? 'winner' : '';
-        
-        // Mettre à jour les informations de la salle
-        const roomInfo = document.getElementById('roomInfo');
-        if (this.currentRoom) {
-            roomInfo.textContent = `Code de la salle: ${this.currentRoom}`;
+        if (message) {
+            status.textContent = message;
+            status.className = isWinner ? 'winner' : '';
         }
-
-        // Mettre à jour les informations du joueur
+        
+        // Update player info
         const playerInfo = document.getElementById('playerInfo');
         if (this.gameState && this.gameState.players) {
             const symbol = this.myPlayerId === this.gameState.players.player1 ? 'X' : 'O';
