@@ -5,15 +5,18 @@ class GameClient {
         this.myPlayerId = null;
         this.currentPlayer = null;
         this.gameState = null;
-        this.rematchRequested = false;
-        this.rematchRequesterId = null;
+        this.stats = null;
+        this.rematchState = null;
         
         this.setupSocketHandlers();
         this.setupUIHandlers();
     }
 
     setupSocketHandlers() {
-        this.socket.on('connect', () => this.handleConnect());
+        this.socket.on('connect', () => {
+            this.handleConnect();
+            this.socket.emit('getStats');
+        });
         this.socket.on('roomCreated', (roomId) => this.handleRoomCreated(roomId));
         this.socket.on('gameStart', (gameState) => this.handleGameStart(gameState));
         this.socket.on('updateBoard', (gameState) => this.handleUpdateBoard(gameState));
@@ -22,8 +25,11 @@ class GameClient {
         this.socket.on('playerDisconnected', (data) => this.handlePlayerDisconnected(data));
         this.socket.on('error', (message) => this.handleError(message));
         this.socket.on('roomFull', () => this.handleRoomFull());
-        this.socket.on('rematchRequested', (data) => this.handleRematchRequest(data));
-        this.socket.on('gameRestarted', (gameState) => this.handleGameRestart(gameState));
+        this.socket.on('playerStats', (stats) => this.handlePlayerStats(stats));
+        this.socket.on('rematchRequested', (data) => this.handleRematchRequested(data));
+        this.socket.on('rematchAccepted', (gameState) => this.handleRematchAccepted(gameState));
+        this.socket.on('rematchDeclined', () => this.handleRematchDeclined());
+        this.socket.on('rematchCanceled', () => this.handleRematchCanceled());
     }
 
     setupUIHandlers() {
@@ -51,6 +57,7 @@ class GameClient {
 
     handleConnect() {
         this.myPlayerId = this.socket.id;
+        this.socket.emit('getStats');
     }
 
     handleRoomCreated(roomId) {
@@ -65,6 +72,7 @@ class GameClient {
         this.showGameBoard();
         this.updateBoard();
         this.updateStatus();
+        this.socket.emit('getStats');
     }
 
     handleUpdateBoard(gameState) {
@@ -81,6 +89,8 @@ class GameClient {
         const message = data.winner === this.myPlayerId ? 
             'Vous avez gagné! 🎉' : 'Vous avez perdu!';
         this.updateStatus(message, data.winner === this.myPlayerId);
+        this.socket.emit('getStats');
+        this.rematchState = null;
         this.addGameEndButtons();
     }
 
@@ -89,6 +99,8 @@ class GameClient {
         this.currentPlayer = null;
         this.updateBoard();
         this.updateStatus('Match nul! 🤝');
+        this.socket.emit('getStats');
+        this.rematchState = null;
         this.addGameEndButtons();
     }
 
@@ -157,81 +169,31 @@ class GameClient {
     addGameEndButtons() {
         const controls = document.getElementById('gameControls');
         controls.innerHTML = '';
-        
-        if (!this.rematchRequested && !this.rematchRequesterId) {
+
+        if (!this.rematchState) {
             const rematchBtn = document.createElement('button');
-            rematchBtn.textContent = 'Proposer une revanche';
+            rematchBtn.textContent = 'Revanche';
             rematchBtn.classList.add('secondary');
-            rematchBtn.onclick = () => {
-                this.requestRematch();
-                rematchBtn.textContent = 'En attente de l\'autre joueur...';
-                rematchBtn.disabled = true;
-            };
+            rematchBtn.onclick = () => this.requestRematch();
             controls.appendChild(rematchBtn);
         }
-        
-        if (this.rematchRequested) {
+
+        if (this.rematchState === 'requesting') {
             const waitingText = document.createElement('div');
-            waitingText.textContent = 'En attente de l\'autre joueur...';
+            waitingText.textContent = 'En attente de réponse...';
             waitingText.className = 'waiting-text';
             controls.appendChild(waitingText);
         }
-        
+
         const newGameBtn = document.createElement('button');
         newGameBtn.textContent = 'Nouvelle Partie';
-        newGameBtn.onclick = () => {
-            window.location.reload();
-        };
-        
+        newGameBtn.onclick = () => window.location.reload();
+        controls.appendChild(newGameBtn);
+
         const menuBtn = document.createElement('button');
         menuBtn.textContent = 'Retour au Menu';
-        menuBtn.onclick = () => {
-            this.showMenu();
-        };
-        
-        controls.appendChild(newGameBtn);
+        menuBtn.onclick = () => this.showMenu();
         controls.appendChild(menuBtn);
-    }
-
-    requestRematch() {
-        this.rematchRequested = true;
-        this.socket.emit('requestRematch', this.currentRoom);
-    }
-
-    handleRematchRequest(data) {
-        if (data.requesterId !== this.myPlayerId) {
-            this.rematchRequesterId = data.requesterId;
-            const controls = document.getElementById('gameControls');
-            controls.innerHTML = '';
-            
-            const acceptBtn = document.createElement('button');
-            acceptBtn.textContent = 'Accepter la revanche';
-            acceptBtn.classList.add('secondary');
-            acceptBtn.onclick = () => {
-                this.socket.emit('acceptRematch', this.currentRoom);
-            };
-            
-            const declineBtn = document.createElement('button');
-            declineBtn.textContent = 'Refuser';
-            declineBtn.onclick = () => {
-                this.showMenu();
-            };
-            
-            controls.appendChild(acceptBtn);
-            controls.appendChild(declineBtn);
-        }
-    }
-
-    handleGameRestart(gameState) {
-        this.gameState = gameState;
-        this.currentPlayer = gameState.currentPlayer;
-        this.rematchRequested = false;
-        this.rematchRequesterId = null;
-        this.updateBoard();
-        this.updateStatus();
-        
-        // Nettoyer les contrôles
-        document.getElementById('gameControls').innerHTML = '';
     }
 
     showMenu() {
@@ -240,8 +202,100 @@ class GameClient {
         this.currentRoom = null;
         this.currentPlayer = null;
         this.gameState = null;
-        this.rematchRequested = false;
-        this.rematchRequesterId = null;
+        this.rematchState = null;
+    }
+
+    handlePlayerStats(stats) {
+        this.stats = stats;
+        this.updateStats();
+    }
+
+    updateStats() {
+        if (!this.stats) return;
+
+        const statsDiv = document.createElement('div');
+        statsDiv.className = 'stats-container';
+        
+        const wins = parseInt(this.stats.wins) || 0;
+        const losses = parseInt(this.stats.losses) || 0;
+        const draws = parseInt(this.stats.draws) || 0;
+
+        statsDiv.innerHTML = `
+            <h3>Vos Statistiques</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">${wins}</div>
+                    <div class="stat-label">Victoires</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${losses}</div>
+                    <div class="stat-label">Défaites</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${draws}</div>
+                    <div class="stat-label">Nuls</div>
+                </div>
+            </div>
+        `;
+
+        const statsInfo = document.getElementById('statsInfo');
+        statsInfo.innerHTML = '';
+        statsInfo.appendChild(statsDiv);
+    }
+
+    requestRematch() {
+        if (this.currentRoom) {
+            this.rematchState = 'requesting';
+            this.socket.emit('requestRematch', this.currentRoom);
+            this.addGameEndButtons();
+        }
+    }
+
+    handleRematchRequested(data) {
+        this.rematchState = 'pending';
+        const controls = document.getElementById('gameControls');
+        controls.innerHTML = '';
+
+        const acceptBtn = document.createElement('button');
+        acceptBtn.textContent = 'Accepter la revanche';
+        acceptBtn.classList.add('secondary');
+        acceptBtn.onclick = () => {
+            this.socket.emit('acceptRematch', this.currentRoom);
+        };
+
+        const declineBtn = document.createElement('button');
+        declineBtn.textContent = 'Refuser';
+        declineBtn.onclick = () => {
+            this.socket.emit('declineRematch', this.currentRoom);
+            this.showMenu();
+        };
+
+        controls.appendChild(acceptBtn);
+        controls.appendChild(declineBtn);
+    }
+
+    handleRematchAccepted(gameState) {
+        this.rematchState = null;
+        this.gameState = gameState;
+        this.currentPlayer = gameState.currentPlayer;
+        
+        // Réinitialiser l'interface
+        this.showGameBoard();
+        this.updateBoard();
+        this.updateStatus();
+        document.getElementById('gameControls').innerHTML = '';
+    }
+
+    handleRematchDeclined() {
+        this.rematchState = 'declined';
+        alert('L\'adversaire a refusé la revanche');
+        this.showMenu();
+    }
+
+    handleRematchCanceled() {
+        this.rematchState = null;
+        alert('La demande de revanche a été annulée');
+        this.addGameEndButtons();
     }
 }
 
