@@ -27,8 +27,8 @@ A modern, real-time multiplayer Tic Tac Toe game with a sleek dark theme and pla
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/tic-tac-toe-multiplayer.git
-cd tic-tac-toe-multiplayer
+git clone https://github.com/Pir3awn/node-efm.git
+cd node-efm
 ```
 
 2. Install dependencies:
