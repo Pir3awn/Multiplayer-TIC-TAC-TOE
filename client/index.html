@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe Multijoueur</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Tic Tac Toe Multijoueur</h1>
+        
+        <div id="menu">
+            <button id="createRoom">Créer une partie</button>
+            <div id="joinGame">
+                <input type="text" id="roomId" placeholder="Code de la salle">
+                <button id="joinRoom">Rejoindre</button>
+            </div>
+        </div>
+
+        <div id="gameBoard" class="hidden">
+            <div class="game-info">
+                <div id="roomInfo" class="room-code"></div>
+                <div id="playerInfo"></div>
+            </div>
+            <div class="board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+            <div id="status"></div>
+            <div id="gameControls"></div>
+        </div>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/GameClient.js"></script>
+</body>
+</html> 
