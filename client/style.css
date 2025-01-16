@@ -6,23 +6,36 @@
 }
 
 :root {
-    --primary-color: #1a73e8;
-    --secondary-color: #34a853;
-    --danger-color: #ea4335;
-    --background-color: #f0f2f5;
-    --text-color: #202124;
-    --text-secondary: #5f6368;
+    /* Main colors */
+    --primary-color: #00a8ff;
+    --secondary-color: #26de81;
+    --danger-color: #fc5c65;
+    --background-color: #1e272e;
+    --surface-color: #2d3436;
+    --surface-color-hover: #353b48;
+    
+    /* Text colors */
+    --text-color: #dfe6e9;
+    --text-secondary: #b2bec3;
+    --text-muted: #636e72;
+    
+    /* Accents and effects */
+    --accent-glow: 0 0 20px rgba(0, 168, 255, 0.15);
+    --hover-glow: 0 8px 25px rgba(0, 168, 255, 0.2);
+    --surface-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    
+    /* Layout */
     --border-radius: 12px;
     --transition: all 0.3s ease;
-    --container-padding: clamp(15px, 5vw, 40px);
-    --container-width: min(100%, 600px);
+    --container-padding: clamp(15px, 3vw, 25px);
+    --container-width: min(100%, 500px);
 }
 
 body {
     font-family: 'Segoe UI', 'Arial', sans-serif;
     background-color: var(--background-color);
     margin: 0;
-    padding: clamp(10px, 3vw, 20px);
+    padding: clamp(10px, 2vw, 15px);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -34,37 +47,39 @@ body {
     width: var(--container-width);
     margin: 0 auto;
     text-align: center;
-    background: white;
+    background: var(--surface-color);
     padding: var(--container-padding);
     border-radius: var(--border-radius);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    box-shadow: var(--surface-shadow);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Typography */
 h1 {
     color: var(--primary-color);
-    margin-bottom: clamp(20px, 4vw, 30px);
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    margin-bottom: clamp(15px, 3vw, 20px);
+    font-size: clamp(1.5rem, 3vw, 2rem);
     font-weight: 700;
     line-height: 1.2;
+    text-shadow: var(--accent-glow);
 }
 
 /* Game Board */
 .board {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: clamp(6px, 2vw, 15px);
-    margin: clamp(15px, 4vw, 25px) auto;
-    width: min(85vw, 400px);
+    gap: clamp(6px, 1.5vw, 10px);
+    margin: clamp(15px, 3vw, 20px) auto;
+    width: min(85vw, 350px);
     aspect-ratio: 1;
 }
 
 .cell {
     aspect-ratio: 1;
-    background: white;
-    border: 3px solid var(--primary-color);
+    background: var(--surface-color);
+    border: 2px solid rgba(0, 168, 255, 0.2);
     border-radius: calc(var(--border-radius) / 2);
-    font-size: clamp(2rem, 12vw, 3.5rem);
+    font-size: clamp(2rem, 8vw, 2.5rem);
     font-weight: bold;
     display: flex;
     align-items: center;
@@ -76,53 +91,59 @@ h1 {
 }
 
 .cell:hover {
-    background: #f8f9fa;
+    background: var(--surface-color-hover);
     transform: scale(1.02);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: var(--hover-glow);
+    border-color: var(--primary-color);
 }
 
 .cell.x {
     color: var(--primary-color);
+    text-shadow: 0 0 10px rgba(0, 168, 255, 0.3);
 }
 
 .cell.o {
     color: var(--danger-color);
+    text-shadow: 0 0 10px rgba(252, 92, 101, 0.3);
 }
 
 /* Menu and Controls */
 #menu {
-    margin: clamp(15px, 4vw, 25px) 0;
+    margin: clamp(15px, 3vw, 20px) 0;
     display: flex;
     flex-direction: column;
-    gap: clamp(10px, 3vw, 20px);
+    gap: clamp(8px, 2vw, 15px);
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #joinGame {
     display: flex;
     flex-wrap: wrap;
-    gap: clamp(8px, 2vw, 15px);
+    gap: clamp(8px, 1.5vw, 12px);
     justify-content: center;
     align-items: stretch;
-    width: 100%;
 }
 
 button {
-    padding: clamp(10px, 2.5vw, 15px) clamp(20px, 4vw, 30px);
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    padding: clamp(8px, 1.5vw, 12px) clamp(16px, 2vw, 24px);
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
     cursor: pointer;
     background: var(--primary-color);
-    color: white;
+    color: var(--text-color);
     border: none;
     border-radius: var(--border-radius);
     transition: var(--transition);
     font-weight: 600;
-    min-width: 120px;
-    -webkit-tap-highlight-color: transparent;
+    min-width: 100px;
+    box-shadow: var(--accent-glow);
 }
 
 button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(26,115,232,0.3);
+    box-shadow: var(--hover-glow);
+    background: #0095e0;
 }
 
 button:active {
@@ -131,107 +152,111 @@ button:active {
 
 button.secondary {
     background: var(--secondary-color);
+    box-shadow: 0 0 20px rgba(38, 222, 129, 0.15);
 }
 
 button.secondary:hover {
-    box-shadow: 0 4px 15px rgba(52,168,83,0.3);
+    box-shadow: 0 8px 25px rgba(38, 222, 129, 0.2);
+    background: #20c974;
 }
 
 input {
-    padding: clamp(10px, 2.5vw, 15px);
-    font-size: clamp(0.9rem, 2.5vw, 1rem);
-    border: 2px solid #ddd;
+    padding: clamp(8px, 1.5vw, 12px);
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
+    border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--border-radius);
-    width: min(200px, 100%);
-    transition: var(--transition);
+    width: min(180px, 100%);
+    background: var(--surface-color-hover);
+    color: var(--text-color);
 }
 
 input:focus {
     border-color: var(--primary-color);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(26,115,232,0.2);
+    box-shadow: var(--accent-glow);
+}
+
+input::placeholder {
+    color: var(--text-muted);
 }
 
 /* Game Info and Status */
 .game-info {
-    margin: clamp(15px, 4vw, 25px) 0;
+    margin: clamp(12px, 2vw, 20px) 0;
     display: flex;
     flex-direction: column;
-    gap: clamp(8px, 2vw, 15px);
+    gap: clamp(6px, 1.5vw, 10px);
     align-items: center;
 }
 
 .room-code {
-    background: #f8f9fa;
-    padding: clamp(8px, 2vw, 12px);
+    background: var(--surface-color-hover);
+    padding: clamp(6px, 1.5vw, 10px);
     border-radius: var(--border-radius);
     font-family: 'Courier New', monospace;
-    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
     color: var(--primary-color);
     word-break: break-all;
     max-width: 100%;
     display: inline-block;
+    border: 1px solid rgba(0, 168, 255, 0.2);
 }
 
 #playerInfo {
-    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-size: clamp(0.9rem, 1.5vw, 1rem);
     color: var(--text-secondary);
     font-weight: 500;
 }
 
 #status {
-    margin: clamp(15px, 4vw, 25px) 0;
-    font-size: clamp(1rem, 3vw, 1.2rem);
+    margin: clamp(12px, 2vw, 20px) 0;
+    font-size: clamp(1rem, 1.5vw, 1.1rem);
     font-weight: 600;
     color: var(--text-secondary);
-    padding: clamp(8px, 2vw, 12px);
-    border-radius: var(--border-radius);
 }
 
 /* Stats Section */
 .stats-container {
-    margin: clamp(15px, 4vw, 25px) auto;
-    padding: clamp(15px, 3vw, 25px);
-    background: #f8f9fa;
+    margin: clamp(15px, 3vw, 20px) auto;
+    padding: clamp(12px, 2vw, 20px);
+    background: var(--surface-color-hover);
     border-radius: var(--border-radius);
-    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    box-shadow: var(--surface-shadow);
+    max-width: 400px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .stats-container h3 {
     color: var(--primary-color);
-    margin-bottom: clamp(10px, 3vw, 20px);
-    font-size: clamp(1.1rem, 3vw, 1.3rem);
+    text-shadow: var(--accent-glow);
 }
 
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: clamp(8px, 2vw, 15px);
+    gap: clamp(6px, 1.5vw, 12px);
 }
 
 .stat-item {
-    padding: clamp(10px, 2vw, 15px) clamp(5px, 1.5vw, 10px);
-    background: white;
+    padding: clamp(8px, 1.5vw, 12px) clamp(4px, 1vw, 8px);
+    background: var(--surface-color);
     border-radius: var(--border-radius);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .stat-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: var(--hover-glow);
 }
 
 .stat-value {
-    font-size: clamp(1.3rem, 4vw, 1.8rem);
-    font-weight: bold;
     color: var(--primary-color);
+    text-shadow: var(--accent-glow);
 }
 
 .stat-label {
-    font-size: clamp(0.8rem, 2vw, 0.9rem);
     color: var(--text-secondary);
-    margin-top: 5px;
 }
 
 /* Animations */
@@ -242,9 +267,7 @@ input:focus {
 
 .winner {
     color: var(--secondary-color);
-    font-size: clamp(1.2rem, 4vw, 1.5rem);
-    margin: clamp(15px, 4vw, 25px) 0;
-    animation: fadeIn 0.5s ease;
+    text-shadow: 0 0 20px rgba(38, 222, 129, 0.2);
 }
 
 /* Mobile Optimizations */
@@ -293,9 +316,7 @@ input:focus {
 /* Loading States */
 .waiting-text {
     color: var(--text-secondary);
-    margin: clamp(8px, 2vw, 12px) 0;
-    font-style: italic;
-    animation: pulse 1.5s ease-in-out infinite;
+    text-shadow: none;
 }
 
 @keyframes pulse {
